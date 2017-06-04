@@ -5,6 +5,13 @@ Termux packages
 This project contains scripts and patches to build packages for the
 [Termux](https://termux.com/) Android application.
 
+Python distribution builder
+===========================
+This is a fork which contains a script that builds a portable Python distribution.
+It can be run by following the Docker instructions below,
+except replacing `./build-package.sh python` with `./build-python.sh`.
+The output files will be placed directly into the root of the project.
+
 Setting up a build environment using Docker
 ===========================================
 For most people the best way to obtain an environment for building packages is by using Docker. This should work everywhere Docker is supported (replace `/` with `\` if using Windows) and ensures an up to date build environment that is tested by other package builders.
