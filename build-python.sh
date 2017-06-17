@@ -23,6 +23,12 @@ build_python_zip() {
     collect_deb libffi_3.2.1-2
     collect_deb openssl_1.0.2l
 
+    echo -n 'Unpacked size before minification: '
+    du -b -d 0 "$ZIP_PREP_DIR"
+    clean_unused_files
+    echo -n 'Unpacked after minification: '
+    du -b -d 0 "$ZIP_PREP_DIR"
+
     [[ -f "$ZIP_FILENAME" ]] && rm "$ZIP_FILENAME"
     pushd "$ZIP_PREP_DIR/usr" > /dev/null
     zip -qr "$ZIP_FILENAME" .
@@ -45,6 +51,34 @@ collect_deb() {
     rsync -a "$TMP_DIR/data/data/data/com.termux/files/" "$ZIP_PREP_DIR"
 
     rm -r "$TMP_DIR"
+}
+
+clean_unused_files() {
+    # First convert symlinks to hardlinks. This prevents a used symlink from
+    # becoming invalidated when its target (whose name is not used) is removed.
+    find "$ZIP_PREP_DIR" -type l -exec bash -c 'ln -f "$(readlink -m "$0")" "$0"' {} \;
+
+    # This is currently slow because it rereads the trace for every candidate file.
+    for filename in $(find "$ZIP_PREP_DIR" -depth); do
+        local filename=$(realpath --no-symlinks --relative-to="$ZIP_PREP_DIR" "$filename")
+
+        # Check if filename is found in trace
+        if grep -q '"'/data/data/com.termux/files/"$filename"'"' trace.txt; then
+            continue
+        fi
+
+        # Exclude special case
+        if [[ "$filename" == "." ]]; then
+            continue
+        fi
+
+        # If we get here, assume the file is unused
+        if [[ -d "$ZIP_PREP_DIR/$filename" ]]; then
+            rmdir "$ZIP_PREP_DIR/$filename"
+        else
+            unlink "$ZIP_PREP_DIR/$filename"
+        fi
+    done
 }
 
 main

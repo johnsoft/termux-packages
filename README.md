@@ -12,6 +12,15 @@ It can be run by following the Docker instructions below,
 except replacing `./build-package.sh python` with `./build-python.sh`.
 The output files will be placed directly into the root of the project.
 
+Minification
+------------
+
+The script expects `trace.txt` to be present in the project directory.
+This file should contain the output from one or several runs of `strace`.
+If a filename is present in this file, it will be preserved in the output.
+Otherwise, it will be assumed to not be needed and stripped from the output.
+This can reduce the output size by approx. 70%.
+
 Setting up a build environment using Docker
 ===========================================
 For most people the best way to obtain an environment for building packages is by using Docker. This should work everywhere Docker is supported (replace `/` with `\` if using Windows) and ensures an up to date build environment that is tested by other package builders.
